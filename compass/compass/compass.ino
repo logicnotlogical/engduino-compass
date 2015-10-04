@@ -2,33 +2,77 @@
 #include<EngduinoLEDs.h>
 #include<Wire.h>
 
-float maxX = 0;
-float minX = -1234;
-float maxY = 659;
-float minY = 0;
-float maxZ = 545;
-float minZ = 0;
+float maxX        = 0;
+float minX        = -1300;
+float maxY        = 900;
+float minY        = 0;
+float maxZ        = 900;
+float minZ        = 0;
+
+int ttl         = 100;
+int maxInitX    = 0;
+int minInitX    = -1300;
+int maxInitY    = 900;
+int minInitY    = 0;
+int maxInitZ    = 900;
+int minInitZ    = 0;
+int maxXttl     = ttl;
+int maxYttl     = ttl;
+int maxZttl     = ttl;
+int minXttl     = ttl;
+int minYttl     = ttl;
+int minZttl     = ttl;
+
 
 void calib(float magField[3]) {
+  maxXttl--; minXttl--;
+  maxYttl--; minYttl--;
+  maxZttl--; minZttl--;
+  
   if(magField[0]>maxX) {
     maxX = magField[0];
+    maxXttl = ttl;
   }
   if (magField[0] < minX) {
     minX = magField[0];
+    minXttl = ttl;
   }
 
   if (magField[1] > maxY) {
     maxY = magField[1];
+    maxYttl = ttl;
   }
   if (magField[1] < minY) {
     minY = magField[1];
+    minYttl = ttl;
   }
 
   if (magField[2] > maxZ) {
     maxZ = magField[2];
+    maxZttl = ttl;
   }
   if (magField[2] < minZ) {
     minZ = magField[2];
+    minZttl = ttl;
+  }
+  
+  if (maxXttl <= 0) {
+    maxX = maxInitX;
+  }
+  if (minXttl <= 0) {
+    minX = minInitX;
+  }
+  if (maxYttl <= 0) {
+    maxY = maxInitY;
+  }
+  if (minYttl <= 0) {
+    minY = minInitY;
+  }
+  if (maxZttl <= 0) {
+    maxZ = maxInitZ;
+  }
+  if (minZttl <= 0) {
+    minZ = minInitZ;
   }
 }
 
@@ -115,14 +159,16 @@ void loop() {
   y = y / rangeY;
   z = z / rangeZ;
 
-  x = 0 - x;
   y = 0 - y;
+//  x = 0 - x;
   
   // convert to heading.
   angle = atan2(y,x);
+  Serial.print("Angle rad: ");
+  Serial.println(angle);
   angle = angle * 180 / PI;
   if (angle < 0) {
-    angle = 360 + angle;
+    angle = 180 + angle;
   }
 
   Serial.print(x);
@@ -135,5 +181,5 @@ void loop() {
   
   compassLight(angle);
   calib(magField);
-  delay(100);
+  delay(10);
 }
